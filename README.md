@@ -4,8 +4,6 @@ A full-stack expense tracking app that uses AI (Groq/Llama) to parse natural lan
 
 ## 🎥 Demo
 
-https://github.com/user-attachments/assets/expense-tracker-demo
-
 > **Watch the demo:** [demo.mov](./demo.mov)
 
 ## Tech Stack
