@@ -1,0 +1,25 @@
+export function timeAgo(dateString: string): string {
+  const now = new Date();
+  const date = new Date(dateString + 'Z');
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return 'Just now';
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min${minutes > 1 ? 's' : ''} ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+
+  return date.toLocaleDateString();
+}
+
+export function formatAmount(amount: number, currency: string): string {
+  if (currency === 'INR') {
+    return `₹${amount.toLocaleString('en-IN')}`;
+  }
+  return `${currency} ${amount.toLocaleString()}`;
+}

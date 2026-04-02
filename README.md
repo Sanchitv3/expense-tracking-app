@@ -1,56 +1,111 @@
-# Welcome to your Expo app 👋
+# AI Expense Tracker
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A full-stack expense tracking app that uses AI (Groq/Llama) to parse natural language input into structured expenses.
 
-## Get started
+## Tech Stack
 
-1. Install dependencies
+- **Mobile:** React Native, Expo, TypeScript
+- **Backend:** Node.js, Express, TypeScript
+- **Database:** SQLite (via better-sqlite3)
+- **AI:** Groq API (Llama 3.1 8B Instant)
 
-   ```bash
-   npm install
-   ```
+## Project Structure
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+├── backend/
+│   ├── src/
+│   │   ├── index.ts              # Express server entry
+│   │   ├── database/index.ts     # SQLite setup & CRUD
+│   │   ├── routes/expenses.ts    # API endpoints
+│   │   └── services/ai.ts        # Groq AI integration
+│   ├── .env                      # API key (add yours)
+│   └── .env.example
+│
+└── mobile/
+    ├── App.tsx                    # Entry point
+    └── src/
+        ├── screens/ExpenseTrackerScreen.tsx  # Main UI
+        ├── services/api.ts                   # API client
+        ├── types/expense.ts                  # Types
+        └── utils/helpers.ts                  # Utilities
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Quick Start
 
-### Other setup steps
+### 1. Get a Groq API Key (free)
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Go to [console.groq.com](https://console.groq.com) and create an API key.
 
-## Learn more
+### 2. Start the Backend
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Edit .env and add: GROQ_API_KEY=gsk_your_key_here
+npm run dev
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Server runs at `http://localhost:3001`
 
-## Join the community
+### 3. Start the Mobile App
 
-Join our community of developers creating universal apps.
+```bash
+cd mobile
+npm install
+npm start
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Scan the QR code with Expo Go, or press `i`/`a` for simulator/emulator.
+
+**Physical device:** Update `API_BASE_URL` in `mobile/src/services/api.ts` to your machine's local IP (e.g., `http://192.168.1.100:3001`).
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| POST | `/api/expenses` | Add expense (natural language) |
+| GET | `/api/expenses` | List all expenses |
+| DELETE | `/api/expenses/:id` | Delete expense |
+
+### Example: Add Expense
+
+```bash
+curl -X POST http://localhost:3001/api/expenses \
+  -H "Content-Type: application/json" \
+  -d '{"input": "Spent 850 on lunch at Taj Hotel"}'
+```
+
+Response:
+```json
+{
+  "success": true,
+  "expense": {
+    "id": 1,
+    "amount": 850,
+    "currency": "INR",
+    "category": "Food & Dining",
+    "description": "Lunch at Taj Hotel",
+    "merchant": "Taj Hotel",
+    "created_at": "2025-01-20T10:30:00Z"
+  }
+}
+```
+
+## Categories
+
+| Category | Emoji |
+|----------|-------|
+| Food & Dining | 🍔 |
+| Transport | 🚗 |
+| Shopping | 🛒 |
+| Entertainment | 📺 |
+| Bills & Utilities | 📄 |
+| Health | 💊 |
+| Travel | ✈️ |
+| Other | 📦 |
+
+## License
+
+MIT
