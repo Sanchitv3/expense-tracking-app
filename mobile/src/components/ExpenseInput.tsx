@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
-  Platform,
 } from 'react-native';
+import { SendIcon } from './Icons';
 
 interface ExpenseInputProps {
   value: string;
@@ -23,21 +23,23 @@ export default function ExpenseInput({
   isLoading,
 }: ExpenseInputProps) {
   return (
-    <View style={styles.inputContainer}>
-      <TextInput
-        style={styles.textInput}
-        placeholder='e.g., Spent 500 on groceries at BigBazaar'
-        placeholderTextColor="#9CA3AF"
-        value={value}
-        onChangeText={onChangeText}
-        onSubmitEditing={onSubmit}
-        returnKeyType="send"
-        editable={!isLoading}
-      />
+    <View style={styles.container}>
+      <View style={styles.inputWrapper}>
+        <TextInput
+          style={styles.input}
+          placeholder='e.g., "Spent 500 on groceries at BigBazaar"'
+          placeholderTextColor="#C4C4C4"
+          value={value}
+          onChangeText={onChangeText}
+          onSubmitEditing={onSubmit}
+          returnKeyType="send"
+          editable={!isLoading}
+        />
+      </View>
       <TouchableOpacity
         style={[
-          styles.addButton,
-          (!value.trim() || isLoading) && styles.addButtonDisabled,
+          styles.sendBtn,
+          (!value.trim() || isLoading) && styles.sendBtnDisabled,
         ]}
         onPress={onSubmit}
         disabled={!value.trim() || isLoading}
@@ -45,7 +47,7 @@ export default function ExpenseInput({
         {isLoading ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text style={styles.addButtonText}>Add</Text>
+          <SendIcon size={20} color="#fff" />
         )}
       </TouchableOpacity>
     </View>
@@ -53,39 +55,48 @@ export default function ExpenseInput({
 }
 
 const styles = StyleSheet.create({
-  inputContainer: {
+  container: {
     flexDirection: 'row',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    gap: 10,
-  },
-  textInput: {
-    flex: 1,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    fontSize: 15,
-    color: '#1F2937',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+    gap: 10,
+    alignItems: 'center',
   },
-  addButton: {
+  inputWrapper: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  input: {
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    fontSize: 14,
+    color: '#1F2937',
+    fontWeight: '500',
+  },
+  sendBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
     backgroundColor: '#6366F1',
-    borderRadius: 12,
-    paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: 60,
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  addButtonDisabled: {
-    backgroundColor: '#A5B4FC',
-  },
-  addButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 15,
+  sendBtnDisabled: {
+    backgroundColor: '#C7D2FE',
+    shadowOpacity: 0,
+    elevation: 0,
   },
 });

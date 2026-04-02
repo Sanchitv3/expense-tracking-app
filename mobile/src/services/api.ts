@@ -1,7 +1,5 @@
-import { Expense, ExpenseResponse } from '../types/expense';
+import { Expense, ExpenseResponse, CategoryBreakdown } from '../types/expense';
 
-// Change this to your backend URL
-// For physical device, use your machine's local IP instead of localhost
 const API_BASE_URL = 'http://localhost:3001';
 const TIMEOUT_MS = 15000;
 
@@ -39,15 +37,34 @@ export async function addExpense(input: string): Promise<Expense> {
   return data.expense;
 }
 
-export async function getExpenses(): Promise<Expense[]> {
-  const response = await fetchWithTimeout(`${API_BASE_URL}/api/expenses`);
+export interface ExpenseListResult {
+  expenses: Expense[];
+  totalSpends: number;
+  totalCount: number;
+  breakdown: CategoryBreakdown[];
+}
+
+export async function getExpenses(from?: string, to?: string): Promise<ExpenseListResult> {
+  const params = new URLSearchParams();
+  if (from) params.append('from', from);
+  if (to) params.append('to', to);
+
+  const query = params.toString();
+  const url = `${API_BASE_URL}/api/expenses${query ? `?${query}` : ''}`;
+
+  const response = await fetchWithTimeout(url);
   const data: ExpenseResponse = await response.json();
 
   if (!data.success) {
     throw new Error(data.error || 'Failed to fetch expenses');
   }
 
-  return data.expenses || [];
+  return {
+    expenses: data.expenses || [],
+    totalSpends: data.totalSpends || 0,
+    totalCount: data.totalCount || 0,
+    breakdown: data.breakdown || [],
+  };
 }
 
 export async function deleteExpense(id: number): Promise<void> {

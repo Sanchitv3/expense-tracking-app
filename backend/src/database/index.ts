@@ -61,8 +61,55 @@ export function createExpense(input: ExpenseInput): Expense {
   return expense;
 }
 
-export function getAllExpenses(): Expense[] {
+export function getAllExpenses(from?: string, to?: string): Expense[] {
+  if (from && to) {
+    return db
+      .prepare('SELECT * FROM expenses WHERE DATE(created_at) BETWEEN ? AND ? ORDER BY created_at DESC')
+      .all(from, to) as Expense[];
+  }
+  if (from) {
+    return db
+      .prepare('SELECT * FROM expenses WHERE DATE(created_at) >= ? ORDER BY created_at DESC')
+      .all(from) as Expense[];
+  }
+  if (to) {
+    return db
+      .prepare('SELECT * FROM expenses WHERE DATE(created_at) <= ? ORDER BY created_at DESC')
+      .all(to) as Expense[];
+  }
   return db.prepare('SELECT * FROM expenses ORDER BY created_at DESC').all() as Expense[];
+}
+
+export interface CategoryBreakdown {
+  category: string;
+  total: number;
+  count: number;
+}
+
+export function getTotalSpends(from?: string, to?: string): { total: number; count: number; breakdown: CategoryBreakdown[] } {
+  let whereClause = '';
+  const params: string[] = [];
+
+  if (from && to) {
+    whereClause = 'WHERE DATE(created_at) BETWEEN ? AND ?';
+    params.push(from, to);
+  } else if (from) {
+    whereClause = 'WHERE DATE(created_at) >= ?';
+    params.push(from);
+  } else if (to) {
+    whereClause = 'WHERE DATE(created_at) <= ?';
+    params.push(to);
+  }
+
+  const totalRow = db
+    .prepare(`SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count FROM expenses ${whereClause}`)
+    .get(...params) as { total: number; count: number };
+
+  const breakdown = db
+    .prepare(`SELECT category, SUM(amount) as total, COUNT(*) as count FROM expenses ${whereClause} GROUP BY category ORDER BY total DESC`)
+    .all(...params) as CategoryBreakdown[];
+
+  return { total: totalRow.total, count: totalRow.count, breakdown };
 }
 
 export function deleteExpense(id: number): boolean {

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { parseExpense } from '../services/ai';
-import { createExpense, getAllExpenses, deleteExpense } from '../database';
+import { createExpense, getAllExpenses, deleteExpense, getTotalSpends } from '../database';
 
 const router = Router();
 
@@ -35,13 +35,21 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/expenses - Get all expenses
-router.get('/', (_req: Request, res: Response) => {
+// GET /api/expenses - Get all expenses with optional date range filter
+router.get('/', (req: Request, res: Response) => {
   try {
-    const expenses = getAllExpenses();
+    const from = req.query.from as string | undefined;
+    const to = req.query.to as string | undefined;
+
+    const expenses = getAllExpenses(from, to);
+    const summary = getTotalSpends(from, to);
+
     return res.json({
       success: true,
       expenses,
+      totalSpends: summary.total,
+      totalCount: summary.count,
+      breakdown: summary.breakdown,
     });
   } catch (error: any) {
     return res.status(500).json({
